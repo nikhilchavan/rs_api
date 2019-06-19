@@ -1,0 +1,26 @@
+{
+  "name": "rs_api",
+  "version": "1.0.0",
+  "description": "For testing public api limit for rs4",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikhilchavan/rs_api.git"
+  },
+  "author": "Nikhil Chavan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nikhilchavan/rs_api/issues"
+  },
+  "homepage": "https://github.com/nikhilchavan/rs_api#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "https": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
