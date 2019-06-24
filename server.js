@@ -2,14 +2,14 @@ const axios = require('axios')
 const https = require('https');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED="0";
 
-const nikhil_test = 'cHZfNzEyOTI0YjliMzlkNDg0ZWJmOTc3YTBjZjQyNWI1YzI=';
-const nikhil_test2 = 'cHZfNzVhM2E1N2E3Zjk4NDJiMDllZjdkZDI2M2JjMzg0ODQ=';
+const clientApp1 = 'cHZfNzEyOTI0YjliMzlkNDg0ZWJmOTc3YTBjZjQyNWI1YzI=';
+const clientApp2 = 'cHZfNzVhM2E1N2E3Zjk4NDJiMDllZjdkZDI2M2JjMzg0ODQ=';
 const config = {
     headers: {
-      'Authorization' : `Basic ${nikhil_test}`
+      'Authorization' : `Basic ${clientApp1}`
     }
 }
-const post_data = {
+const reusableTemplateData = {
     "message": "Please sign this",
     "expires_in": 30,
     "roles": [
@@ -21,23 +21,69 @@ const post_data = {
     ],
     "name": "This is the name of a document"
 };
-const reusable_template_url = 'https://api.rs.dev:3002/public/v1/reusable_templates/28ba58ab-8ad3-434f-900e-1a75fbb21117/send_document';
+const sendingRequestData = {
+    "file": {
+      "name": "my_upload.pdf",
+      "source": "upload"
+    },
+    "document": {
+      "signer_sequencing": false,
+      "expires_in": 12,
+      "name": "Sign me",
+      "roles": [
+        {
+            "name": "a",
+            "signer_name": "Foo B",
+            "signer_email": "foo@bar.com"
+        }
+      ]
+    },
+    "sending_request": {}
+}
+const reusableTemplateUrl = 'https://api.rs.dev:3002/public/v1/reusable_templates/28ba58ab-8ad3-434f-900e-1a75fbb21117/send_document';
+const sendingRequestUrl = 'https://api.rs.dev:3002/public/v1/sending_requests/';
 let count = 0;
 
-function request() {
+//public/v1/reusable_templates/:id/send_document
+function sendDocument() {
     count++;
     axios.post(
-        reusable_template_url,
-        post_data,
+        reusableTemplateUrl,
+        reusableTemplateData,
         config,
         { httpsAgent : new https.Agent({ rejectUnauthorized: false }) }
     )
     .then((res) => {
-      console.log(`${count} statusCode: ${res.status}`);
+        console.log(`${count} statusCode: ${res.status}`);
     })
-    .catch((error) => {
-      console.log(error.response.status, error.response.data.error);
-    })
+    .catch(error => console.log(error.response.status, error.response.data.error))
 }
 
-let interval = setInterval(request, 1000);
+async function uploadAndProcess(documentInfo) {
+    try {
+        await axios.put(documentInfo.upload_url, 'Dummy Content');
+        await axios.post(`https://api.rs.dev:3002/public/v1/sending_requests/${documentInfo.id}/uploaded`, 
+            {}, 
+            config, 
+            { httpsAgent : new https.Agent({ rejectUnauthorized: false }) }
+        );
+        console.log("Document Sent");
+    } catch(e) {
+        console.log(e);
+    }
+}
+//public/v1/sending_requests/:id
+function sendRequest() {
+    count++;
+    axios.post(
+        sendingRequestUrl,
+        sendingRequestData,
+        config,
+        { httpsAgent : new https.Agent({ rejectUnauthorized: false }) }
+    )
+    .then(res => uploadAndProcess(res.data.sending_request))
+    .catch(error => console.log(error.response.status, error.response.data.error));
+}
+
+//setInterval(sendDocument, 4000);
+sendRequest();
