@@ -40,7 +40,8 @@ const sendingRequestData = {
     },
     "sending_request": {}
 }
-const reusableTemplateUrl = 'https://api.rs.dev:3002/public/v1/reusable_templates/28ba58ab-8ad3-434f-900e-1a75fbb21117/send_document';
+const reusableTemplateId = '28ba58ab-8ad3-434f-900e-1a75fbb21117';
+const reusableTemplateUrl = `https://api.rs.dev:3002/public/v1/reusable_templates/${reusableTemplateId}/send_document`;
 const sendingRequestUrl = 'https://api.rs.dev:3002/public/v1/sending_requests/';
 let count = 0;
 
@@ -85,5 +86,5 @@ function sendRequest() {
     .catch(error => console.log(error.response.status, error.response.data.error));
 }
 
-//setInterval(sendDocument, 4000);
+//sendDocument();
 sendRequest();
